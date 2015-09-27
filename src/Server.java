@@ -26,7 +26,6 @@ public class Server extends JFrame{
 	private JSONObject obj;
 	private String jsonObjectString;
 	private Connection con;
-	//Replace the JTextArea with a JPanel with JLabels in it
 	
 	public Server(){
 		
@@ -37,23 +36,23 @@ public class Server extends JFrame{
 		listOfUsers = new String[maxAmountOfUsers];
 		
 		obj = new JSONObject();
-		try{
+		try {
 			obj.put("file", "");
 			obj.put("listOfUsernames", listOfUsers);
 			obj.put("username", "");
 			obj.put("disconnectedUser", "");
 			jsonObjectString = obj.toString();
-		}catch (JSONException e){
+		} catch (JSONException e){
 			e.printStackTrace();
 		}
 		
 		userText = new JTextField();
-		userText.setEditable(false); //You are not allowed to type anything before there's a connection
-		userText.addActionListener( //When the user presses ENTER the action of sending a message will be performed
+		userText.setEditable(false); // You are not allowed to type anything before there's a connection
+		userText.addActionListener( // When the user presses ENTER the action of sending a message will be performed
 			new ActionListener(){
 				public void actionPerformed(ActionEvent event){
 					sendMessage(event.getActionCommand());
-					userText.setText(""); //Clear the typing area after the user pressed ENTER
+					userText.setText(""); // Clear the typing area after the user pressed ENTER
 				}
 				
 			}
@@ -65,7 +64,7 @@ public class Server extends JFrame{
 		setSize(640, 480);
 		setVisible(true);
 		
-		//Disables the fading out of the disabled window
+		// Disables the fading out of the disabled window
 		chatWindow.addFocusListener(new FocusListener(){
 
 	        public void focusLost(FocusEvent e){
@@ -78,7 +77,7 @@ public class Server extends JFrame{
 	    });		
 	}	
 	
-	//Set up and run the server. This will be called after the GUI is created
+	// Set up and run the server. This will be called after the GUI is created
 	public void run(){
 		
 		try{			
@@ -87,12 +86,12 @@ public class Server extends JFrame{
 	   
 			new Thread(new SocketThread(new Socket())).start();    
 			
-		}catch (IOException ioException){
+		} catch (IOException ioException){
 		    ioException.printStackTrace();
 		}		
 	}	
 
-	//Sends a message to the client
+	// Sends a message to the client
 	private void sendMessage(String message){
 		
 		for(ObjectOutputStream output : outputList){
@@ -103,9 +102,9 @@ public class Server extends JFrame{
 				jsonObjectString = obj.toString();
 				output.writeObject(jsonObjectString);
 				output.flush();
-			}catch(IOException ioException){
+			} catch(IOException ioException){
 
-			}catch(JSONException e){
+			} catch(JSONException e){
 				e.printStackTrace();
 			}
 		}
@@ -121,9 +120,9 @@ public class Server extends JFrame{
 				jsonObjectString = obj.toString();
 				output.writeObject(jsonObjectString);
 				output.flush();
-			}catch(IOException ioException){
+			} catch(IOException ioException){
 
-			}catch(JSONException e){
+			} catch(JSONException e){
 				e.printStackTrace();
 			}
 		}
@@ -152,7 +151,7 @@ public class Server extends JFrame{
 		if(con != null){
 			try{
 		         stat = con.createStatement();		      
-		    }catch(SQLException e){
+		    } catch(SQLException e){
 		        System.out.println("Connection couldn't be obtained");
 		    }
 		}
@@ -175,7 +174,7 @@ public class Server extends JFrame{
 		}			
 	}
 	
-	//Lets a user type
+	// Lets a user type
 	private void ableToType(final boolean tof){
 		
 		SwingUtilities.invokeLater(
@@ -187,7 +186,7 @@ public class Server extends JFrame{
 		);
 	}
 	
-	//Takes a string array and a value and checks if the array contains the said value
+	// Takes a string array and a value and checks if the array contains the said value
 	private boolean doesArrayContain(String[] array, String value){
 		
 		for(int i = 0; i < array.length; i++)
@@ -198,7 +197,7 @@ public class Server extends JFrame{
 		return false;
 	}
 	
-	//Pushes a value to the first empty spot in an array
+	// Pushes a value to the first empty spot in an array
 	private void pushValueToArray(String[] array, String value){
 		
 		for(int i = 0; i < array.length; i++){
@@ -209,7 +208,7 @@ public class Server extends JFrame{
 		}
 	}
 	
-	//Removes an element from an array
+	// Removes an element from an array
 	private void removeElementFromArray(String[] array, String element){
 		
 		for(int i = 0; i < array.length; i++){
@@ -229,10 +228,10 @@ public class Server extends JFrame{
 
 		try {
 			con = getConnection();
-		}catch (SQLException e) {
+		} catch (SQLException e) {
 			System.out.println("Connection couldn't be obtained");
 	    }
-	    	return con;
+	    return con;
 	}
 	
 	public static Connection getConnection() throws SQLException {
@@ -240,23 +239,25 @@ public class Server extends JFrame{
         String drivers = "com.mysql.jdbc.Driver";
         String url = "jdbc:mysql://localhost:3306/testdb";
         String username = "root";
-        String password = ""; //There is no password
+        String password = ""; // There is no password
 
         System.setProperty(drivers,"");
 
         return DriverManager.getConnection(url,username,password);
     }
 	
-	public void addItems(String username, String message) {
+	public void addItems(String username, String message){
 
         PreparedStatement pstat = null;
 
-        String sql = "INSERT INTO messages(username, message, date) VALUES (?,?, NOW());";
+		// Query string
+        String sql = "INSERT INTO messages(username, message, date) VALUES (?, ?, NOW());";
 
         if(con != null){
             try{
+				// Prepared statement
                  pstat = con.prepareStatement(sql);
-            }catch(SQLException e){
+            } catch(SQLException e){
                 System.out.println("Connection couldn't be obtained");
             }
         }
@@ -266,7 +267,7 @@ public class Server extends JFrame{
                  pstat.setString(1, username);
                  pstat.setString(2, message);
                  pstat.executeUpdate();
-            }catch(SQLException e){
+            } catch(SQLException e){
                 e.printStackTrace();
                 System.out.println("Insertion of the entry was unsuccessful");
             }
@@ -295,8 +296,8 @@ public class Server extends JFrame{
 	    	try{	    		
 	    		executeOnce = true;
 	    		
-				//Connect and have a conversation
-	    		socket = serverSocket.accept(); //Accepts a connection to the socket
+				// Connect and have a conversation
+	    		socket = serverSocket.accept(); // Accepts a connection to the socket
 	    		
 	    		output = new ObjectOutputStream(socket.getOutputStream());
 	    		output.flush();
@@ -323,36 +324,36 @@ public class Server extends JFrame{
 	    					showMessage("\n" + obj.getString("message"));
 	    					sendMessageToClients();
 	    					addItems(obj.getString("username"), obj.getString("message").substring(obj.getString("message").indexOf(" ") + 1)); 
-	    					//I want to remove the ": " from the beginning of the string
+	    					// I want to remove the ": " from the beginning of the string
 	    				}
 	    				
-	    				//(Yes, it would be better using an ArrayList of strings, but JSONObjects are stupid...)
-	    				//If the array of usernames do not contain the current username, then put it in the array
+	    				// (Yes, it would be better using an ArrayList of strings, but JSONObjects are stupid...)
+	    				// If the array of usernames do not contain the current username, then put it in the array
 	    				if(!doesArrayContain(listOfUsers, obj.getString("username"))){
 	    					pushValueToArray(listOfUsers, obj.getString("username"));
 	    				}
 	    				obj.put("listOfUsernames", listOfUsers);
 	    				
 	    				if(executeOnce){
-	    					username = obj.getString("username"); //The username of the person that just connected
+	    					username = obj.getString("username"); // The username of the person that just connected
 	    					obj.put("message", username + " connected to the server");
 	    					addItems("null", obj.getString("message")); 
 		    				showMessage("" + obj.getString("message"));
 		    				sendMessageToClients();		    				
 		    				executeOnce = false;
 	    				}
-	    			}catch(ClassNotFoundException classNotFoundException){
+	    			} catch(ClassNotFoundException classNotFoundException){
 	    				showMessage("\nUnrecognized class");
-	    			}catch(JSONException e){
+	    			} catch(JSONException e){
 	    				e.printStackTrace();
 	    			}
-	    		}while(true);
+	    		} while(true);
 
-			}catch(EOFException eofException){ //The exception is End Of Stream Exception
+			} catch(EOFException eofException){ // The exception is End Of Stream Exception
 				showMessage("\nServer ended the connection");
 			} catch (IOException e) {
 				e.printStackTrace();
-			}finally{
+			} finally{
 				try{					
 					showMessage("\n" + username + " disconnected from the server");
 					obj.put("username", username);
@@ -360,13 +361,13 @@ public class Server extends JFrame{
 					obj.put("disconnectedUser", username);
 					addItems("null", obj.getString("message")); 
 					sendMessageToClients();
-					removeElementFromArray(listOfUsers, username); //When a user disconnects if removes their username from the array
+					removeElementFromArray(listOfUsers, username); // When a user disconnects if removes their username from the array
 					output.close();
 					input.close();
 					socket.close();
-				}catch(IOException ioException){
+				} catch(IOException ioException){
 					ioException.printStackTrace();
-				}catch(JSONException e){
+				} catch(JSONException e){
 					e.printStackTrace();
 				}		
 			}	

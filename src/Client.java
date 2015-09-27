@@ -36,7 +36,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.apache.commons.codec.binary.Base64;
 
-public class Client extends JFrame{
+public class Client extends JFrame {
 
 	private JTextField userText;
 	private JTextArea chatWindow;
@@ -56,17 +56,23 @@ public class Client extends JFrame{
 	private String serverIP;
 	private String username;
 	private String[] arrayOfAddedUsernames;
-	private boolean downloadFile; //If a client sent a file the said client won't download it
+	private boolean downloadFile; // If a client sent a file the said client won't download it
 	private File selectedFile;
 
-	//Host is  the IP address of the server
+	/** 
+	 * Constructor
+	 * @param String host. The ip address of the server
+	 *
+	 */
 	public Client(String host){
 		
 		super("Chat application client");
 
-		arrayOfAddedUsernames = new String[1337]; //It's 100 because only 100 people can connect to the server
+		arrayOfAddedUsernames = new String[100]; //It's 100 because only 100 people can connect to the server
 		
+		// Create JSONObject
 		obj = new JSONObject();
+		
 		try {
 			obj.put("file", "");
 			obj.put("disconnectedUser", "");
@@ -76,15 +82,20 @@ public class Client extends JFrame{
 		
 		downloadFile = true;
 		
+		// Create JPanel
 		panel = new JPanel();
+		// Set layout to GridBagLayout
 		panel.setLayout(new GridBagLayout());
 		
 		GridBagConstraints c = new GridBagConstraints();
 
+		// Sets the menu bar
 		setMenuBar();
 		
+		// Create JTabbedPane
 		tabbedPane = new JTabbedPane();
 
+		// Create text area which shows the users that are currently online
 		usersOnlineWindow = new JTextArea(1, 10);
 		c.fill = GridBagConstraints.BOTH;
 		c.gridwidth = 1;
@@ -95,6 +106,7 @@ public class Client extends JFrame{
 		c.gridy = 0;
 		panel.add(new JScrollPane(usersOnlineWindow), c);
 
+		// Create the text area that the chat conversations appear in
 		chatWindow = new JTextArea(1, 8000);
 		chatWindow.setLineWrap(true);
 		c.fill = GridBagConstraints.BOTH;
@@ -106,6 +118,7 @@ public class Client extends JFrame{
 		c.gridy = 0;
 		panel.add(new JScrollPane(chatWindow), c);		
 		
+		// Create the text field that the user types in
 		userText = new JTextField();
 		c.fill = GridBagConstraints.BOTH;
 		c.gridwidth = 2;
@@ -118,8 +131,9 @@ public class Client extends JFrame{
 		userText.addActionListener(
 			new ActionListener(){
 				public void actionPerformed(ActionEvent event){
-					if(!event.getActionCommand().equals(""))
+					if(!event.getActionCommand().equals("")){
 						sendMessage(event.getActionCommand());
+					}
 					userText.setText("");
 				}	
 			}
@@ -131,8 +145,10 @@ public class Client extends JFrame{
 		
 		tabbedPane.add("Public room", panel);
 
+		// Add the panel to the JFrame
 		add(panel);
 		
+		// Set some JFrame attributes
 		setSize(640, 480);
 		setVisible(true);	
 		setResizable(false);
@@ -152,22 +168,22 @@ public class Client extends JFrame{
 		serverIP = host;	
 	}
 	
-	//Connect to server
+	// Connect to the server
 	public void run(){
 		
 		try{
 			connectToServer();
 			setupStreams();
 			whileChatting();
-		}catch(EOFException eofException){
+		} catch(EOFException eofException){
 			showMessage("\nClient terminated connection");
-		}catch(IOException ioException){
+		} catch(IOException ioException){
 			ioException.printStackTrace();
 			showMessage("\nFailed to connect to server");
 		}
 	}
 	
-	//Creates and sets the menu bars
+	// Creates and sets the menu bars
 	private void setMenuBar(){
 		
 		mb = new JMenuBar();
@@ -177,7 +193,8 @@ public class Client extends JFrame{
 		mb.add(connectionBar);
 
 		sendImage = new JMenuItem("Send file");
-		//Converts the file to base64 and puts the string in the JSONObject
+		
+		// Converts the file to base64 and puts the string in the JSONObject
 		sendImage.addActionListener(
 			new ActionListener(){
 				public void actionPerformed(ActionEvent event){
@@ -186,8 +203,7 @@ public class Client extends JFrame{
 					
 			        int returnValue = fileChooser.showOpenDialog(null);
 			        
-			        if(returnValue == JFileChooser.APPROVE_OPTION){
-			        	
+			        if(returnValue == JFileChooser.APPROVE_OPTION){			        	
 			          selectedFile = fileChooser.getSelectedFile();
 			        }
 			        
@@ -219,7 +235,7 @@ public class Client extends JFrame{
 						obj.put("sendingUser", username);
 						output.writeObject(obj.toString());
 						output.flush();
-					}catch(IOException | JSONException ioException){
+					} catch(IOException | JSONException ioException){
 						//I don't feel like doing anything here...
 					}
 					
@@ -247,18 +263,18 @@ public class Client extends JFrame{
 	//Connect to server
 	private void connectToServer() throws IOException{
 		
-		showMessage("Attempting connection... \n");
+		showMessage("Attempting connection...\n");
 		
 		try {
 			do{
 				try{
 					username = JOptionPane.showInputDialog("Enter a username");
 					obj.put("username", username);
-				}catch (JSONException e) {
+				} catch (JSONException e) {
 					e.printStackTrace();
 				}
-			}while(obj.getString("username").contains(" ") || obj.getString("username") == null);
-		}catch (HeadlessException | JSONException e) {
+			} while(obj.getString("username").contains(" ") || obj.getString("username") == null);
+		} catch (HeadlessException | JSONException e) {
 			e.printStackTrace();
 		}
 		
@@ -266,7 +282,7 @@ public class Client extends JFrame{
 		showMessage("Connected to: " + connection.getInetAddress().getHostName());
 	}
 	
-	//Set up streams to send and receive messages
+	// Set up streams to send and receive messages
 	private void setupStreams() throws IOException{
 		
 		output = new ObjectOutputStream(connection.getOutputStream());
@@ -276,7 +292,7 @@ public class Client extends JFrame{
 		usersOnlineWindow.append("Users currently online:\n");
 	}
 	
-	//While chatting with the server
+	// While chatting with the server
 	public void whileChatting() throws IOException{
 		
 		try{
@@ -284,7 +300,7 @@ public class Client extends JFrame{
 			jsonObjectString = obj.toString();
 			output.writeObject(jsonObjectString);
 			output.flush();
-		}catch(IOException | JSONException e){
+		} catch(IOException | JSONException e){
 			e.printStackTrace();
 		}
 
@@ -311,15 +327,15 @@ public class Client extends JFrame{
 				
 				showUsersOnline();
 				showMessage("\n" + obj.get("message"));
-			}catch(ClassNotFoundException classNotFoundException){
+			} catch(ClassNotFoundException classNotFoundException){
 				showMessage("\n Unrecognized class");
-			}catch(JSONException e){
+			} catch(JSONException e){
 				e.printStackTrace();
 			}
-		}while(true);
+		} while(true);
 	}
 	
-	//Send messages to the server
+	// Send messages to the server
 	private void sendMessage(String message){
 		
 		try {
@@ -332,12 +348,12 @@ public class Client extends JFrame{
 		try{
 			output.writeObject(obj.toString());
 			output.flush();
-		}catch(IOException ioException){
+		} catch(IOException ioException){
 			chatWindow.append("\nSomething went wrong when sending message");
 		}
 	}
 	
-	//Displays all messages on the chat area and updates it
+	// Displays all messages on the chat area and updates it
 	private void showMessage(final String message){
 		
 		SwingUtilities.invokeLater(
@@ -349,7 +365,7 @@ public class Client extends JFrame{
 		);
 	}
 
-	//Lets a user type or not
+	// Lets a user type or not
 	private void ableToType(final boolean tof){
 		
 		SwingUtilities.invokeLater(
@@ -361,11 +377,10 @@ public class Client extends JFrame{
 		);
 	}
 	
-	//Displays the users currently online in the usersOnlineWindow JTextArea
-	//INTE KLART!!!!
+	// Displays the users currently online in the usersOnlineWindow JTextArea
 	private void showUsersOnline() throws JSONException{
 		
-		//Fuck det här, här under. Det fucking sög att skriva. JSONArrays är retarderade.
+		// Fuck det här under. Det fucking sög att skriva. JSONArrays är retarderade.
 		
 		for(int i = 0; i < ((JSONArray)obj.get("listOfUsernames")).length(); i++){
 			if(!((JSONArray)obj.get("listOfUsernames")).isNull(i)){				
@@ -408,10 +423,13 @@ public class Client extends JFrame{
 	//Takes a string array and a value and checks if the array contains the said value
 	private boolean doesArrayContain(String[] array, String value){
 		
-		for(int i = 0; i < array.length; i++)
-			if(array[i] != null)
-				if(array[i].equals(value))
+		for(int i = 0; i < array.length; i++){
+			if(array[i] != null){
+				if(array[i].equals(value)){
 					return true;
+				}
+			}
+		}
 		
 		return false;
 	}
