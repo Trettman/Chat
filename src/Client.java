@@ -84,7 +84,9 @@ public class Client extends JFrame {
 		
 		// Create JPanel
 		panel = new JPanel();
-		// Set layout to GridBagLayout
+		/* Set layout to GridBagLayout. I use a GridBagLayout because it's one of the most
+		 * flexible layout managers in Java.
+		 */
 		panel.setLayout(new GridBagLayout());
 		
 		GridBagConstraints c = new GridBagConstraints();
@@ -380,7 +382,7 @@ public class Client extends JFrame {
 	// Displays the users currently online in the usersOnlineWindow JTextArea
 	private void showUsersOnline() throws JSONException{
 		
-		// Fuck det här under. Det fucking sög att skriva. JSONArrays är retarderade.
+		// Fuck det hÃ¤r under. Det fucking sÃ¶g att skriva. JSONArrays Ã¤r retarderade.
 		
 		for(int i = 0; i < ((JSONArray)obj.get("listOfUsernames")).length(); i++){
 			if(!((JSONArray)obj.get("listOfUsernames")).isNull(i)){				
